@@ -35,12 +35,6 @@
     .news-card p {
       color: #555;
     }
-    .ai-summary, .translation {
-      background: #e3f2fd;
-      padding: 10px;
-      border-radius: 5px;
-      margin-top: 10px;
-    }
   </style>
 </head>
 <body>
@@ -55,8 +49,6 @@
       'https://en.sun.mv/feed',
       // Add more RSS feed URLs here
     ];
-
-    const openAiKey = 'YOUR_OPENAI_KEY'; // Replace with your OpenAI API key
 
     // Fetch and parse RSS feeds
     async function fetchNews() {
@@ -78,7 +70,7 @@
     }
 
     // Display news articles
-    async function displayNews(articles) {
+    function displayNews(articles) {
       const newsContainer = document.getElementById('news-container');
       newsContainer.innerHTML = ''; // Clear previous content
 
@@ -87,7 +79,7 @@
         return;
       }
 
-      for (const article of articles) {
+      articles.forEach(article => {
         const newsCard = document.createElement('div');
         newsCard.classList.add('col-md-6', 'news-card');
 
@@ -97,56 +89,19 @@
             <div class="card-body">
               <h5>${article.title}</h5>
               <p>${article.description || 'No description available.'}</p>
-              <div class="ai-summary">Loading AI summary...</div>
-              <div class="translation">Loading translation...</div>
               <a href="${article.link}" target="_blank" class="btn btn-primary mt-3">Read More</a>
             </div>
           </div>
         `;
         newsCard.innerHTML = cardContent;
         newsContainer.appendChild(newsCard);
-
-        // Get AI summary and translation
-        const aiSummaryElement = newsCard.querySelector('.ai-summary');
-        const translationElement = newsCard.querySelector('.translation');
-
-        const summary = await getAiSummary(article.title, article.description);
-        aiSummaryElement.textContent = `AI Summary: ${summary}`;
-
-        const translation = await translateToDhivehi(summary);
-        translationElement.textContent = `Dhivehi Translation: ${translation}`;
-      }
+      });
     }
 
-    // Get AI summary using OpenAI API
-    async function getAiSummary(title, description) {
-      const prompt = `Summarize the following news article in one sentence:\n\nTitle: ${title}\nDescription: ${description}`;
-
-      try {
-        const response = await fetch('https://api.openai.com/v1/chat/completions', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${openAiKey}`,
-          },
-          body: JSON.stringify({
-            model: 'gpt-3.5-turbo',
-            messages: [{ role: 'user', content: prompt }],
-            max_tokens: 50,
-          }),
-        });
-
-        const data = await response.json();
-        return data.choices[0].message.content.trim();
-      } catch (error) {
-        console.error('Error fetching AI summary:', error);
-        return 'Unable to generate summary.';
-      }
-    }
-
-    // Translate text to Dhivehi using OpenAI API
-    async function translateToDhivehi(text) {
-      const prompt = `Translate the following text to Dhivehi:\n\n${text}`;
-
-      try {
-        const response = await fetch('https://api.openai.com/v1/chat/completion
+    // Load news when the page loads
+    window.onload = fetchNews;
+  </script>
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
